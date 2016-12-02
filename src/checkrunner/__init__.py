@@ -24,7 +24,7 @@ class CheckRunner(object):
     @classmethod
     def run(cls, return_passed=False, **kwargs):
         """
-        Run the checks
+        Run the checks in this (sub)class
 
         If you use return_passed, be sure to make whatever string or object
         you return also indicates the pass/fail state, as only one boolean is
@@ -82,9 +82,12 @@ class CheckRunner(object):
             # not a subclass?
             return []
         else:
-            methods = list(set(dir(my_class)) - set(dir(CheckRunner)))
-            logger.debug('All methods: {}'.format(methods))
-            return [
-                getattr(cls, m) for m in methods if not m.startswith('_')
+            diff_attr = list(set(dir(my_class)) - set(dir(CheckRunner)))
+            public_attr = [
+                getattr(cls, m) for m in diff_attr if not m.startswith('_')
             ]
+            methods = [
+                a for a in public_attr if callable(a)
+            ]
+            return methods
 

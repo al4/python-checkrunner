@@ -7,24 +7,28 @@ __author__ = 'al4'
 # logging.basicConfig(level=logging.DEBUG)
 
 
-class ExampleChecks(object):
-    """ Example checks which we use in the tests """
-    @classmethod
-    def passing_check(cls):
-        return True, 'always passes'
+""" Example checks which we use in the tests
 
-    @classmethod
-    def failing_check(cls):
-        return False, 'always fails'
+These would be under a class to suppress the "Decorator @staticmethod outside
+class" warnings, but in Python2 the staticmethod decorator is not preserved
+when you reference it in another class.
+"""
+@staticmethod
+def passing_check():
+    return True, 'always passes'
 
-    @classmethod
-    def exception_raising_check(cls):
-        raise Exception('test exception')
+@staticmethod
+def failing_check():
+    return False, 'always fails'
 
-    @classmethod
-    def _private_method(cls):
-        """ We should always exclude private methods """
-        raise NotImplementedError("This should never be run")
+@staticmethod
+def exception_raising_check():
+    raise Exception('test exception')
+
+@staticmethod
+def _private_method():
+    """ We should always exclude private methods """
+    raise NotImplementedError("This should never be run")
 
 
 class CommonTests(object):
@@ -67,20 +71,20 @@ class FailureTests(object):
 class TestPassing(TestCase, CommonTests):
     """ All checks pass """
     class MyChecks(CheckRunner):
-        passing_check = ExampleChecks.passing_check
+        passing_check = passing_check
 
 
 class TestFailing(TestCase, CommonTests, FailureTests):
     """ All checks fail """
     class MyChecks(CheckRunner):
-        failing_check = ExampleChecks.failing_check
+        failing_check = failing_check
 
 
 class TestMixed(TestCase, CommonTests, FailureTests):
     """ Both passing and failing checks """
     class MyChecks(CheckRunner):
-        passing_check = ExampleChecks.passing_check
-        failing_check = ExampleChecks.failing_check
+        passing_check = passing_check
+        failing_check = failing_check
 
     def test_mixed_returns_false(self):
         """ Result of a test with some failed checks is fail """
@@ -92,9 +96,9 @@ class TestPrivateMethods(TestCase, CommonTests):
     """ Tests with a private method present
     """
     class MyChecks(CheckRunner):
-        passing_check = ExampleChecks.passing_check
-        failing_check = ExampleChecks.failing_check
-        _excluded_method = ExampleChecks._private_method
+        passing_check = passing_check
+        failing_check = failing_check
+        _excluded_method = _private_method
 
     def test_get_methods_excludes_private(self):
         """ Test that we exclude private methods
@@ -106,7 +110,7 @@ class TestPrivateMethods(TestCase, CommonTests):
 class TestReturnPassed(TestCase):
     """ Test with return_passed=True """
     class MyChecks(CheckRunner):
-        passing_check = ExampleChecks.passing_check
+        passing_check = passing_check
         # failing_check = ExampleChecks.failing_check
 
     def test_includes_passed(self):
