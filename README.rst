@@ -9,7 +9,7 @@ Create a sub-class of CheckRunner and declare your checks::
     from checkrunner import CheckRunner
 
     class MyChecks(CheckRunner):
-        @classmethod  # classmethod decorator is optional but tidier
+        @classmethod
         def check_that_passes(cls):
             return True, 'this check passed!'
 
@@ -19,6 +19,7 @@ Create a sub-class of CheckRunner and declare your checks::
 
     print(MyChecks.run())
     # (False, ['this check failed!'])
+
     print(MyChecks.run(return_passed=True))
     # (False, ['this check passed!', 'this check failed!'])
 
@@ -39,5 +40,6 @@ And that's it!
 
 Testing
 -------
+::
 
-
+    tox

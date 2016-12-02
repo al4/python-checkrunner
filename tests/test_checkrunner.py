@@ -28,36 +28,36 @@ class ExampleChecks(object):
 
 
 class CommonTests(object):
-    my_class = None
+    MyChecks = None
 
     def test_returns_tuple(self):
-        self.assertIsInstance(self.my_class.run(), tuple)
+        self.assertIsInstance(self.MyChecks.run(), tuple)
 
     def test_first_return_arg_is_boolean(self):
-        self.assertIsInstance(self.my_class.run()[0], bool)
+        self.assertIsInstance(self.MyChecks.run()[0], bool)
 
     def test_second_return_arg_is_list(self):
-        self.assertIsInstance(self.my_class.run()[1], list)
+        self.assertIsInstance(self.MyChecks.run()[1], list)
 
     def test_output_does_not_contain_passed_message(self):
-        result, out = self.my_class.run()
+        result, out = self.MyChecks.run()
         self.assertNotIn('always passes', out)
 
 
 class FailureTests(object):
     """ Test the failure scenarios """
-    my_class = None
+    MyChecks = None
 
     def test_list_is_not_empty(self):
         self.assertEqual(
-            len(self.my_class.run()[1]),
+            len(self.MyChecks.run()[1]),
             1
         )
 
     def test_list_contains_failed(self):
         """ Test the list contains our fail string """
         self.assertEqual(
-            self.my_class.run()[1][0],
+            self.MyChecks.run()[1][0],
             'always fails'
         )
 
@@ -66,29 +66,25 @@ class FailureTests(object):
 # mixed)
 class TestPassing(TestCase, CommonTests):
     """ All checks pass """
-    class PassingChecks(CheckRunner):
+    class MyChecks(CheckRunner):
         passing_check = ExampleChecks.passing_check
-    my_class = PassingChecks
 
 
 class TestFailing(TestCase, CommonTests, FailureTests):
     """ All checks fail """
-    class FailingChecks(CheckRunner):
+    class MyChecks(CheckRunner):
         failing_check = ExampleChecks.failing_check
-    my_class = FailingChecks
 
 
 class TestMixed(TestCase, CommonTests, FailureTests):
     """ Both passing and failing checks """
-    class MixedChecks(CheckRunner):
+    class MyChecks(CheckRunner):
         passing_check = ExampleChecks.passing_check
         failing_check = ExampleChecks.failing_check
 
-    my_class = MixedChecks
-
     def test_mixed_returns_false(self):
         """ Result of a test with some failed checks is fail """
-        result, out = self.my_class.run()
+        result, out = self.MyChecks.run()
         self.assertFalse(result)
 
 
@@ -100,13 +96,11 @@ class TestPrivateMethods(TestCase, CommonTests):
         failing_check = ExampleChecks.failing_check
         _excluded_method = ExampleChecks._private_method
 
-    my_class = MyChecks
-
     def test_get_methods_excludes_private(self):
         """ Test that we exclude private methods
         """
-        methods = self.my_class._get_check_methods()
-        self.assertNotIn(self.my_class._excluded_method, methods)
+        methods = self.MyChecks._get_check_methods()
+        self.assertNotIn(self.MyChecks._excluded_method, methods)
 
 
 class TestReturnPassed(TestCase):
@@ -115,8 +109,6 @@ class TestReturnPassed(TestCase):
         passing_check = ExampleChecks.passing_check
         # failing_check = ExampleChecks.failing_check
 
-    my_class = MyChecks
-
     def test_includes_passed(self):
-        result, out = self.my_class.run(return_passed=True)
+        result, out = self.MyChecks.run(return_passed=True)
         self.assertIn('always passes', out)

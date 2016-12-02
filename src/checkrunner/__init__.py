@@ -12,8 +12,17 @@ class CheckRunner(object):
     want to run as functions. Then call MyChecks.run() (there is no need to
     instantiate the class). See the readme for more information.
     """
+    def __init__(self):
+        """ To allow instantiation, we would have to detect whether we are an
+        instance and pass the self argument. At this time, I deem this not
+        necessary.
+        """
+        raise NotImplementedError(
+            "CheckRunner should not be instantiated"
+        )
+
     @classmethod
-    def run(cls, return_passed=False):
+    def run(cls, return_passed=False, **kwargs):
         """
         Run the checks
 
@@ -35,7 +44,10 @@ class CheckRunner(object):
         for check_function in methods:
             logger.debug('Running check_function {}'.format(
                 check_function.__name__))
-            results.append(check_function())
+            if kwargs:
+                results.append(check_function(**kwargs))
+            else:
+                results.append(check_function())
         logger.debug('Results: {}'.format(results))
 
         if all([result for result, message in results]) \
