@@ -56,13 +56,14 @@ class CheckRunner(object):
     @classmethod
     def _get_check_methods(cls):
         """
-        Fetch the methods declared in this class by comparing to the base class
+        Fetch the methods declared in this class (usually a sub-class)
 
-        We exclude private methods (that start with an underscore)
+        By comparing to the base class. We exclude private methods that
+        start with an underscore.
         """
         my_class = None
         for subclass in CheckRunner.__subclasses__():
-            if subclass.__name__ == cls.__name__:
+            if subclass == cls:
                 my_class = subclass
 
         if not my_class:
