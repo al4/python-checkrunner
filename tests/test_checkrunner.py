@@ -11,11 +11,11 @@ class ExampleChecks(object):
     """ Example checks which we use in the tests """
     @classmethod
     def passing_check(cls):
-        return True, 'this check always passes :)'
+        return True, 'always passes'
 
     @classmethod
     def failing_check(cls):
-        return False, 'this check always fails'
+        return False, 'always fails'
 
     @classmethod
     def exception_raising_check(cls):
@@ -39,6 +39,10 @@ class CommonTests(object):
     def test_second_return_arg_is_list(self):
         self.assertIsInstance(self.my_class.run()[1], list)
 
+    def test_output_does_not_contain_passed_message(self):
+        result, out = self.my_class.run()
+        self.assertNotIn('always passes', out)
+
 
 class FailureTests(object):
     """ Test the failure scenarios """
@@ -54,7 +58,7 @@ class FailureTests(object):
         """ Test the list contains our fail string """
         self.assertEqual(
             self.my_class.run()[1][0],
-            'this check always fails'
+            'always fails'
         )
 
 
@@ -65,9 +69,6 @@ class TestPassing(TestCase, CommonTests):
     class PassingChecks(CheckRunner):
         passing_check = ExampleChecks.passing_check
     my_class = PassingChecks
-
-    def test_list_is_empty(self):
-        self.assertListEqual(self.my_class.run()[1], [])
 
 
 class TestFailing(TestCase, CommonTests, FailureTests):
@@ -90,10 +91,6 @@ class TestMixed(TestCase, CommonTests, FailureTests):
         result, out = self.my_class.run()
         self.assertFalse(result)
 
-    def test_mixed_returns_only_failed(self):
-        result, out = self.my_class.run()
-        self.assertEqual(len(out), 1)
-
 
 class TestPrivateMethods(TestCase, CommonTests):
     """ Tests with a private method present
@@ -110,3 +107,16 @@ class TestPrivateMethods(TestCase, CommonTests):
         """
         methods = self.my_class._get_check_methods()
         self.assertNotIn(self.my_class._excluded_method, methods)
+
+
+class TestReturnPassed(TestCase):
+    """ Test with return_passed=True """
+    class MyChecks(CheckRunner):
+        passing_check = ExampleChecks.passing_check
+        # failing_check = ExampleChecks.failing_check
+
+    my_class = MyChecks
+
+    def test_includes_passed(self):
+        result, out = self.my_class.run(return_passed=True)
+        self.assertIn('always passes', out)
