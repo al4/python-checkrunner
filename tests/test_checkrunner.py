@@ -116,3 +116,29 @@ class TestReturnPassed(TestCase):
     def test_includes_passed(self):
         result, out = self.MyChecks.run(return_passed=True)
         self.assertIn('always passes', out)
+
+
+def always_passes(f):
+    """ Decorator which makes the check pass
+
+    For the TestDecorated test case below
+    """
+    def inner():
+        return True, 'decorator pass'
+    return inner
+
+
+class TestDecorated(TestCase, CommonTests):
+    """ Test with a decorated function """
+
+    class MyChecks(CheckRunner):
+        # Note staticmethod should always be top as it does not return the
+        # function
+        @staticmethod
+        @always_passes
+        def decorated_check():
+            return False, 'fails'
+
+    def test_decorator_executes(self):
+        """ Test that our decorator has run by asserting True """
+        self.assertTrue(self.MyChecks.run()[0])

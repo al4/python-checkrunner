@@ -1,5 +1,6 @@
 from __future__ import print_function
 import logging
+from checkrunner.exc import CheckRunnerReturnError
 
 __author__ = 'al4'
 logger = logging.getLogger(__name__)
@@ -50,8 +51,14 @@ class CheckRunner(object):
                 results.append(check_function())
         logger.debug('Results: {}'.format(results))
 
-        if all([result for result, message in results]) \
-                or not results:
+        try:
+            successful = all([result for result, message in results])
+        except TypeError:
+            logger.error('Please ensure all your checks return a tuple '
+                         'consisting of a boolean and an object. '
+                         'Results: {}'.format(results))
+            raise CheckRunnerReturnError
+        if successful or not results:
             # All are true or empty list
             logger.debug('All checks passed')
             if return_passed:
