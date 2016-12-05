@@ -2,6 +2,7 @@ from __future__ import print_function
 import logging
 from unittest import TestCase
 from checkrunner import CheckRunner
+from checkrunner import CheckRunnerReturnError
 
 __author__ = 'al4'
 # logging.basicConfig(level=logging.DEBUG)
@@ -142,3 +143,15 @@ class TestDecorated(TestCase, CommonTests):
     def test_decorator_executes(self):
         """ Test that our decorator has run by asserting True """
         self.assertTrue(self.MyChecks.run()[0])
+
+
+class TestBadReturnValue(TestCase):
+    class MyChecks(CheckRunner):
+        @staticmethod
+        def bad_return_check():
+            return False
+
+    def test_bad_return_value_raises(self):
+        """ Test that we raise an exception when the return val is bad """
+        self.assertRaises(CheckRunnerReturnError, self.MyChecks.run)
+
